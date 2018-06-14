@@ -7,7 +7,10 @@ import re
 
 import numpy as np
 import pandas as pd
+import imageio
 
+
+IMG_SIZE = 512
 
 DATA_VIR = "1.1"
 
@@ -144,3 +147,72 @@ def preprocess():
     df_valid = build_dataframe(VALID_LABELED, VALID_PATH)
 
     return df_train, df_valid
+
+
+def load_images(df):
+    """
+    Load all images in the dataframe in to a nparray. Will add padding to make
+    a square image. Image will be grayscaled if it not already.
+    :param df: dataframe to load from.
+    :return: nparray of shape (num_images, img_size, img_size), corresponding labels,
+    image path
+    """
+    num_images = df.shape[0]
+    imgs = np.zeros((num_images, IMG_SIZE, IMG_SIZE))
+    labels = np.zeros(num_images)
+    path = [""] * num_images
+    for idx, row in df.iterrows():
+        # load image from path into nparray
+        img = imageio.imread(row["path"])
+
+        # gray scale image if it is not already gray scaled
+        if len(img.shape) == 3:
+            img = np.tensordot(img, [0.2, 0.5, 0.3], axes=(-1, -1))
+
+        # add padding to the image matrix
+        # for each side of the image, each colour channel shall be padded with 0s of size
+        # (512 - image_width/height)/2 on each end, so that the image stays in the center,
+        # and is surrounded with black.
+        horz_start = int((IMG_SIZE - img.shape[0]) / 2)
+        horz_cord = range(horz_start, horz_start + img.shape[0])
+
+        vert_start = int((IMG_SIZE - img.shape[1]) / 2)
+        vert_cord = range(vert_start, vert_start + img.shape[1])
+
+        imgs[np.ix_([idx], horz_cord, vert_cord)] = img
+        labels[idx] = row["label"]
+        path[idx] = row["path"]
+
+    return imgs, labels, path
+
+
+def pick_bpart(df, bpart):
+    """
+    Create a sub dataset of particular body part.
+    :param df: dataframe to process
+    :param bpart: body part to extract
+    :return: trimmed dataframe
+    """
+    return df[df["body_part"] == bpart].reset_index()
+
+
+def pick_n_per_patient(df, num):
+    """
+    Create a sub dataset that pick first n images from each patient. Will return error
+    if num is greater than the minial count
+    :param df: dataframe to process
+    :param num: number of images to pick from each patient
+    :return: trimmed dataframe
+    """
+    min_count = df.groupby("study")["path"].count().min()
+
+    if num > min_count:
+        raise ValueError("num is greater than minimum count of images per patient: {}".format(
+            min_count
+        ))
+
+    result = pd.DataFrame()
+    for study in df["study"].unique():
+        result = result.append(df[df["study"] == study][:num])
+
+    return result.reset_index()
