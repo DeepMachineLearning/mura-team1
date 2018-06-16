@@ -111,3 +111,7 @@ dataset/
 
 # Reference code
 references/
+weights/
+
+# Models
+models/
