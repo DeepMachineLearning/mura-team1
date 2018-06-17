@@ -10,6 +10,7 @@ import keras as K
 import numpy as np
 
 import dataset
+import util
 
 
 IMG_SIZE = 512
@@ -149,9 +150,7 @@ def train(resize, load_param, batch_size, epochs, learning_rate, **kwargs):
     print('****** Training time: %s' % (datetime.datetime.now() - start_time))
 
     # save model after success training
-    if not (os.path.exists(MODEL_PATH)):
-        # create the directory you want to save to
-        os.mkdir(MODEL_PATH)
+    util.create_dir(MODEL_PATH)
     K.models.save_model(
         model,
         os.path.join(MODEL_PATH, "vgg_{:%Y-%m-%d-%H%M}.h5".format(
@@ -175,9 +174,7 @@ def write_prediction(model, imgs, paths, batch_size, labels=None):
     :return:
     """
     predictions = model.predict(imgs, batch_size=batch_size)
-    if not (os.path.exists(RESULT_PATH)):
-        # create the directory you want to save to
-        os.mkdir(RESULT_PATH)
+    util.create_dir(RESULT_PATH)
     with open(
         os.path.join(RESULT_PATH, "vgg_{:%Y-%m-%d-%H%M}.csv".format(
             datetime.datetime.now()

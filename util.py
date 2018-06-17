@@ -1,3 +1,5 @@
+import os
+
 import numpy as np
 import keras as K
 
@@ -46,3 +48,15 @@ def print_weights(file):
             layer.name,
             layer.get_weights()
         ))
+
+
+def create_dir(path):
+    """
+    Recursively create the directory and all its parent directories.
+    :param path: directory path
+    :return:
+    """
+    if not (os.path.exists(path)):
+        # create the directory you want to save to
+        create_dir(os.path.dirname(path))
+        os.mkdir(path)
