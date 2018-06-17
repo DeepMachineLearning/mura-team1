@@ -48,7 +48,7 @@ def build_model(img_size):
     tensor = K.layers.Flatten()(tensor)
     tensor = K.layers.Dense(256, activation="relu")(tensor)
     tensor = K.layers.Dropout(0.5)(tensor)
-    tensor = K.layers.Dense(NUM_CLASS, activation="linear")(tensor)
+    tensor = K.layers.Dense(NUM_CLASS, activation="softmax")(tensor)
 
     model = K.models.Model(inputs=img_tensor, outputs=tensor, name="VGG")
 
@@ -85,6 +85,10 @@ def train(batch_size, epochs, learning_rate, **kwargs):
     print('Training time: %s' % (datetime.datetime.now() - start_time))
 
     # save model after success training
+    if not (os.path.exists(MODEL_PATH)):
+        # create the directory you want to save to
+        os.mkdir(MODEL_PATH)
+
     K.models.save_model(
         model,
         os.path.join(MODEL_PATH, "vgg_{:%Y-%m-%d-%H%M}.h5".format(
@@ -93,7 +97,7 @@ def train(batch_size, epochs, learning_rate, **kwargs):
     )
 
     # run prediction on validation set and save result in csv
-    write_prediction(model, IMGS_VALID, LABELS_VALID)
+    write_prediction(model, IMGS_VALID, batch_size, LABELS_VALID)
 
 
 def write_prediction(model, imgs, batch_size, labels=None):
@@ -107,20 +111,24 @@ def write_prediction(model, imgs, batch_size, labels=None):
     :return:
     """
     predictions = model.predict(imgs, batch_size=batch_size)
-
+    if not (os.path.exists(RESULT_PATH)):
+        # create the directory you want to save to
+        os.mkdir(RESULT_PATH)
     with open(
         os.path.join(RESULT_PATH, "vgg_{:%Y-%m-%d-%H%M}.csv".format(
             datetime.datetime.now()
-        ))
+        )),
+        "w",
+        newline=''
     ) as csvfile:
-        fieldnames = ['path', 'prediction', "label"]
+        fieldnames = ['prediction', "label"]
         writer = csv.DictWriter(csvfile, fieldnames=fieldnames)
         writer.writeheader()
-        for i in range(predictions):
+        for i in range(len(predictions)):
             writer.writerow(
                 {
                     'prediction': predictions[i],
-                    "label": labels[i] if labels else None
+                    "label": labels[i] if labels is not None else None
                 }
             )
 

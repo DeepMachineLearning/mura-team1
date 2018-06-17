@@ -59,7 +59,7 @@ def build_model(img_size):
     tensor = K.layers.Flatten()(tensor)
     tensor = K.layers.Dense(256, activation="relu")(tensor)
     tensor = K.layers.Dropout(0.5)(tensor)
-    tensor = K.layers.Dense(1, activation="linear")(tensor)
+    tensor = K.layers.Dense(1, activation="sigmoid")(tensor)
 
     model = K.models.Model(inputs=img_tensor, outputs=tensor, name="VGG")
 
@@ -149,6 +149,9 @@ def train(resize, load_param, batch_size, epochs, learning_rate, **kwargs):
     print('****** Training time: %s' % (datetime.datetime.now() - start_time))
 
     # save model after success training
+    if not (os.path.exists(MODEL_PATH)):
+        # create the directory you want to save to
+        os.mkdir(MODEL_PATH)
     K.models.save_model(
         model,
         os.path.join(MODEL_PATH, "vgg_{:%Y-%m-%d-%H%M}.h5".format(
@@ -172,21 +175,25 @@ def write_prediction(model, imgs, paths, batch_size, labels=None):
     :return:
     """
     predictions = model.predict(imgs, batch_size=batch_size)
-
+    if not (os.path.exists(RESULT_PATH)):
+        # create the directory you want to save to
+        os.mkdir(RESULT_PATH)
     with open(
         os.path.join(RESULT_PATH, "vgg_{:%Y-%m-%d-%H%M}.csv".format(
             datetime.datetime.now()
-        ))
+        )),
+        "w",
+        newline=''
     ) as csvfile:
         fieldnames = ['path', 'prediction', "label"]
         writer = csv.DictWriter(csvfile, fieldnames=fieldnames)
         writer.writeheader()
-        for i in range(predictions):
+        for i in range(len(predictions)):
             writer.writerow(
                 {
                     'path': paths[i],
                     'prediction': predictions[i],
-                    "label": labels[i] if labels else None
+                    "label": labels[i] if labels is not None else None
                 }
             )
 
