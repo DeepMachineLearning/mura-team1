@@ -21,6 +21,17 @@ IMG_SIZE = 28
 NUM_CLASS = 10
 
 
+def one_hot_encode(labels):
+    """
+    One Hot Encode a list of labels.
+    :param labels: ndarray of unencoded labels
+    :return: ndarray of encoded labels
+    """
+    result = np.zeros((len(labels), NUM_CLASS))
+    result[range(len(labels)), labels] = 1
+    return result
+
+
 def build_model(img_size):
     """
     Laying out the VGGNet model.
@@ -31,9 +42,9 @@ def build_model(img_size):
 
     tensor = vggnet.conv_block(img_tensor, 64, 2, 3, "relu")
     tensor = vggnet.conv_block(tensor, 128, 2, 3, "relu")
-    tensor = vggnet.conv_block(tensor, 256, 3, 3, "relu")
-    tensor = vggnet.conv_block(tensor, 512, 3, 3, "relu")
-    tensor = vggnet.conv_block(tensor, 512, 3, 3, "relu")
+    # tensor = vggnet.conv_block(tensor, 256, 3, 3, "relu")
+    # tensor = vggnet.conv_block(tensor, 512, 3, 3, "relu")
+    # tensor = vggnet.conv_block(tensor, 512, 3, 3, "relu")
     tensor = K.layers.Flatten()(tensor)
     tensor = K.layers.Dense(256, activation="relu")(tensor)
     tensor = K.layers.Dropout(0.5)(tensor)
@@ -64,7 +75,7 @@ def train(batch_size, epochs, learning_rate, **kwargs):
     model.compile(
         loss='categorical_crossentropy',
         optimizer=adam,
-        metrics=[K.metrics.binary_accuracy])
+        metrics=["acc"])
 
     # log training time
     start_time = datetime.datetime.now()
@@ -119,10 +130,13 @@ if __name__ == "__main__":
     MNDATA = mnist.MNIST(DATA_DIR, return_type="numpy")
 
     IMGS_TRAIN, LABELS_TRAIN = MNDATA.load_training()
-    IMGS_TRAIN = IMGS_TRAIN.reshape((IMGS_TRAIN.shape[0], IMG_SIZE, IMG_SIZE, 1))
-
     IMGS_VALID, LABELS_VALID = MNDATA.load_testing()
+
+    # Data preprocessing
+    IMGS_TRAIN = IMGS_TRAIN.reshape((IMGS_TRAIN.shape[0], IMG_SIZE, IMG_SIZE, 1))
+    LABELS_TRAIN = one_hot_encode(LABELS_TRAIN)
     IMGS_VALID = IMGS_VALID.reshape((IMGS_VALID.shape[0], IMG_SIZE, IMG_SIZE, 1))
+    LABELS_VALID = one_hot_encode(LABELS_VALID)
 
     # Define argument parser so that the script can be executed directly
     # from console.
