@@ -41,7 +41,7 @@ def build_model(img_size):
     img_tensor = K.layers.Input((img_size, img_size, 1))
 
     tensor = vggnet.conv_block(img_tensor, 64, 2, 3, "relu")
-    tensor = vggnet.conv_block(tensor, 128, 2, 3, "relu")
+    # tensor = vggnet.conv_block(tensor, 128, 2, 3, "relu")
     # tensor = vggnet.conv_block(tensor, 256, 3, 3, "relu")
     # tensor = vggnet.conv_block(tensor, 512, 3, 3, "relu")
     # tensor = vggnet.conv_block(tensor, 512, 3, 3, "relu")
