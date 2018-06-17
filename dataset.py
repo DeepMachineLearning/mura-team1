@@ -6,10 +6,11 @@ import math
 import os
 import re
 
+import cv2
+import imageio
 import matplotlib.pyplot as plt
 import numpy as np
 import pandas as pd
-import imageio
 
 
 IMG_SIZE = 512
@@ -238,3 +239,16 @@ def show_first_n_img(imgs, num=9):
     for i in range(num):
         plt.subplot(n_row, n_col, i + 1)
         plt.imshow(imgs[i, :, :, 0], cmap='gray')
+
+
+def resize_img(imgs, size):
+    """
+    Resize a list of images.
+    :param imgs: imgs to resize.
+    :param size: size of the image to resize to
+    :return: resized images
+    """
+    vfunc = np.vectorize(
+        lambda img: cv2.resize(img, (size, size)).reshape((size, size, 1)),
+    )
+    return vfunc(imgs)

@@ -103,15 +103,12 @@ venv.bak/
 # mypy
 .mypy_cache/
 
-# Dataset
-dataset/
-
 # Pycharm
 .idea/
 
-# Reference code
+# Resources
 references/
 weights/
-
-# Models
 models/
+dataset/
+cache/
