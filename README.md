@@ -36,9 +36,9 @@ Reference https://stanfordmlgroup.github.io/competitions/mura/
 
     add backend:TkAgg
 
-11) Download mnist library from http://yann.lecun.com/exdb/mnist/ and copy the exacted file to dataset folder which is under mura-team1 folder
+11) Download mnist library from http://yann.lecun.com/exdb/mnist/ and copy the extracted files to dataset folder which is under mura-team1 folder
 
-12) Download MURA from https://stanfordmlgroup.github.io/competitions/mura/. Register first and get an email include the MURA data set.
+12) Download MURA from https://stanfordmlgroup.github.io/competitions/mura/. Register first and an email will be sent to you which includes the MURA data set.
 
 13) run script to get result
 
