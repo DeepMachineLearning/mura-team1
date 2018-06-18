@@ -8,6 +8,9 @@ import re
 
 import cv2
 import imageio
+#use TkAgg for MacOS to fix Python is not installed as a framework. The Mac OS X backend will not be able to function correctly if Python is not installed as a framework.
+import matplotlib as mpl
+mpl.use('TkAgg')
 import matplotlib.pyplot as plt
 import numpy as np
 import pandas as pd
